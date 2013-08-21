@@ -31,8 +31,9 @@
 ;; we don't have to bind them
 (run* [q p])
 
-;; TASK: write a logic program where p is unified with :foo and q is not
-;; unified with p
+"
+- TASK: write a logic program where p is unified with :foo and q is
+not unified with p"
 #_(run* [q p]
       (== p :foo)
       (!= q p))
@@ -54,6 +55,12 @@
 (run* [q]
       (conso q [:bar :baz] [:foo :bar :baz]))
 
+"
+- TASK: where else can q be? what happens?
+- TASK: what happens if q is not used?
+- TASK: what if no list can satisfy it
+- TASK: use two lvars in conso in multiple places
+"
 ;; TASK: where else can q be? what happens?
 #_(run* [q]
       (conso :foo q [:foo :bar :baz]))
@@ -97,7 +104,11 @@
               [(== q [])]
               [(conso h t q) (== :foo h)])))
 
-;; TASK: unify q where first two elements are :foo and :bar, or the
+"
+- TASK: unify q where first two elements are :foo and :bar, OR the
+second element is :baz
+"
+;; TASK: unify q where first two elements are :foo and :bar, OR the
 ;; second element is :baz
 #_(run* [q]
       (fresh [h t1 t2]
@@ -124,6 +135,9 @@
 (run 3 [q]
      (containso :foo q))
 
+"
+- TASK: write not-containso
+"
 ;; TASK: write not-containso
 #_(defn not-containso
   [x l]
@@ -156,6 +170,9 @@
   ([_ (x . t)]) ;; x is matching the head of the list
   ([_ (h . t)] (containso x t)))
 
+"
+- TASK: re-write not-containso using defne
+"
 ;; TASK: re-write not-containso using defne
 #_(defne not-containso
   [x l]
@@ -171,6 +188,8 @@
 #_(run 3 [q]
      (not-containso :foo q))
 
+"
+- TASK: (latero x y l) - write defne that matches \"x is later than y in l \""
 ;; TASK: (latero x y l) - write defne that matches "x is later than y in l"
 (defne latero
   "x is later than y in l."
@@ -196,6 +215,10 @@
 (run* [q]
       (not-righto q :bar [:foo :bar :baz]))
 
+"
+- TASK: given not-righto, write (not-adjacento x y l) \"x and y are not
+  adjacent in l\"
+"
 ;; TASK: given not-righto, write (not-adjacento x y l) "x and y are not
 ;; adjacent in l"
 (defn not-adjacento
