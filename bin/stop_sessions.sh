@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-ps aux | grep thomas | grep lein | grep nrepl-uri | cut -d" " -f 10 | xargs kill
+ps aux | grep lein | grep nrepl-uri | awk '{print $2}' | xargs kill
