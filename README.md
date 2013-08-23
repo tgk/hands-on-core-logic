@@ -1,6 +1,14 @@
 # Hands-on core.logic
 
-## Setting up
+## Having a go with the material from the session
+
+Start a repl and start copying things in from src/hands_on.clj
+
+    lein repl
+
+Alternatively, start a nREPL session in Emacs.
+
+## Setting up a session for several people
 
 Clone [the session project from github](https://github.com/kovasb/session).
 
