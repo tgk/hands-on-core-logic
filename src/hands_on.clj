@@ -33,7 +33,8 @@
 
 "
 - TASK: write a logic program where p is unified with :foo and q is
-not unified with p"
+not unified with p
+"
 #_(run* [q p]
       (== p :foo)
       (!= q p))
