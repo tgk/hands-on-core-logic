@@ -1,3 +1,16 @@
+;; NOTES FROM FIRST DRY-RUN
+;; time:
+;; 15 first task
+;; 30 end of conso
+;; 35 start conde task
+;; 55 write not-containso using defne
+;;
+;; General:
+;; Use numbers instead of :foo, :bar, :baz
+;; Mention paredit in the beginning
+;; Mention that copy-pasting is encouraged
+
+
 (ns user
   (:refer-clojure :exclude [==])
   (:use clojure.core.logic)
@@ -8,6 +21,8 @@
       (== q true))
 
 ;; a logical value can take any Clojure value
+(run* [q]
+      (== q 1))
 (run* [q]
       (== q :foo))
 
@@ -28,6 +43,7 @@
       (== q :foo)
       (!= p :bar))
 
+;;;; SKIP?
 ;; we don't have to bind them
 (run* [q p])
 
@@ -111,11 +127,13 @@ second element is :baz
 "
 ;; TASK: unify q where first two elements are :foo and :bar, OR the
 ;; second element is :baz
+;; TODO: This assignment is not a good assignment!!!!!!!!!
+;; Is it a big leap? One or two more example using conde before jumping to it!!!!!!!!
 #_(run* [q]
       (fresh [h t1 t2]
              (conde
-              [(conso :foo t1 q) (conso :bar t2 t1)]
-              [(conso h    t1 q) (conso :baz t2 t1)])))
+              [(conso 1 t1 q) (conso 2 t2 t1)]
+              [(conso h t1 q) (conso 3 t2 t1)])))
 
 ;; goals can be set up in functions
 (defn containso
@@ -174,7 +192,6 @@ second element is :baz
 "
 - TASK: re-write not-containso using defne
 "
-;; TASK: re-write not-containso using defne
 #_(defne not-containso
   [x l]
   ([_ []])
@@ -189,9 +206,19 @@ second element is :baz
 #_(run 3 [q]
      (not-containso :foo q))
 
+;; There are a bunch of built in relations in core.logic. We are not going to go through them all here
+(comment
+  (membero x l) ;; x is a member of l
+  (appendo x y z) ;; z is x appended to y
+  (rembero x l o) ;; o is l with x removed
+  (permuteo xl yl) ;; xl and yl are permutations
+  (distincto l)) ;; all elements in l are distinct
+
 "
-- TASK: (latero x y l) - write defne that matches \"x is later than y in l \""
-;; TASK: (latero x y l) - write defne that matches "x is later than y in l"
+- TASK: (latero x y l) - write defne that matches \"x is later than y in l\"
+        e.g. (latero 1 2 [3 2 1]) is true,
+             (latero 1 2 [1 2 3]) is false
+"
 (defne latero
   "x is later than y in l."
   [x y l]
@@ -211,11 +238,12 @@ second element is :baz
   ([_ _ []])
   ([_ _ [x . t]] (membero y t))
   ([_ _ [y h . t]] (!= h x) (membero x t))
-  ([_ _ [h . t]] (!= y h) (!= x h)(not-righto x y t)))
+  ([_ _ [h . t]] (!= y h) (!= x h) (not-righto x y t)))
 
 (run* [q]
       (not-righto q :bar [:foo :bar :baz]))
 
+;; TODO: Write some examples of true and false expressions
 "
 - TASK: given not-righto, write (not-adjacento x y l) \"x and y are not
   adjacent in l\"
@@ -232,13 +260,8 @@ second element is :baz
 (run* [q]
       (not-adjacento q :baz [:foo :bar :baz]))
 
-;; core.logic comes with helpful relations
-(comment
-  (membero x l) ;; x is a member of l
-  (appendo x y z) ;; z is x appended to y
-  (rembero x l o) ;; o is l with x removed
-  (permuteo xl yl) ;; xl and yl are permutations
-  (distincto l)) ;; all elements in l are distinct
+(run 3 [q]
+     (not-adjacento :foo :baz q))
 
 ;; EXAMPLE: Dinesman's multiple-dwelling problem
 "Dinesman's multiple-dwelling problem
@@ -265,7 +288,11 @@ Cooper's. Where does everyone live?"
              (permuteo [:baker :cooper :fletcher :miller :smith]
                        floors)))
 
-;;;; BREAK?
+
+;;;;; I don't think we'll make it further than here - I migth release
+;;;;; the packeto as lecture notes instead.
+
+
 
 ;; Finite domain
 
