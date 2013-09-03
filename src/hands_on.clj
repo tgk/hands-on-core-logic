@@ -48,29 +48,29 @@
 (run* [q p])
 
 "
-- TASK: write a logic program where p is unified with :foo and q is
+- TASK: write a logic program where p is unified with 1 and q is
 not unified with p
 "
 #_(run* [q p]
-      (== p :foo)
+      (== p 1)
       (!= q p))
 
 ;; fresh gives us additional variables
 (run* [q]
       (fresh [p]
-             (== p :foo)
+             (== p 42)
              (== q p)))
 
 ;; do you know cons from LISP and Clojure?
-(cons :foo [:bar :baz])
+(cons 1 [2 3])
 
 ;; conso is like cons, but we have to bind the result as well
 (run* [q]
-      (conso :foo [:bar :baz] q))
+      (conso 1 [2 3] q))
 
 ;; and the lvar can be anywhere
 (run* [q]
-      (conso q [:bar :baz] [:foo :bar :baz]))
+      (conso q [2 3] [1 2 3]))
 
 "
 - TASK: where else can q be? what happens?
@@ -80,22 +80,22 @@ not unified with p
 "
 ;; TASK: where else can q be? what happens?
 #_(run* [q]
-      (conso :foo q [:foo :bar :baz]))
+      (conso 1 q [1 2 3]))
 
 ;; TASK: what happens if q is not used?
 #_(run* [q]
-      (conso :foo [:bar :baz] [:foo :bar :baz]))
+      (conso 1 [2 3] [1 2 3]))
 
 ;; TASK: what if no list can satisfy it
 #_(run* [q]
-      (conso :foo [:bar :baz] [:bar]))
+      (conso 1 [2 42] [1 2 3]))
 
 ;; TASK: use two lvars in conso in multiple places
 #_(run* [q p]
-      (conso q p [:foo :bar :baz]))
+      (conso q p [1 2 3]))
 
 #_(run* [q p]
-      (conso q [:bar :baz] p))
+      (conso q [2 3] p))
 
 #_(run* [q p u]
         (conso q p u))
@@ -106,34 +106,42 @@ not unified with p
 ;; conde gives us alternative solutions
 (run* [q]
       (conde
-       [(== q :foo)]
-       [(== q :bar)]))
+       [(== q 1)]
+       [(== q 2)]))
 
 (run* [q]
       (conde
-       [(== q :foo)]
-       [(!= q :bar)]))
+       [(== q 1)]
+       [(!= q 2)]))
 
 ;; several clauses works as a logical and
 (run* [q]
       (fresh [h t]
              (conde
               [(== q [])]
-              [(conso h t q) (== :foo h)])))
+              [(conso h t q) (== 1 h)])))
 
 "
-- TASK: unify q where first two elements are :foo and :bar, OR the
-second element is :baz
+- TASK: write a goal where the lvar q is either [1 2 3] or has only
+  one element.
 "
-;; TASK: unify q where first two elements are :foo and :bar, OR the
-;; second element is :baz
-;; TODO: This assignment is not a good assignment!!!!!!!!!
-;; Is it a big leap? One or two more example using conde before jumping to it!!!!!!!!
 #_(run* [q]
-      (fresh [h t1 t2]
+      (fresh [h t]
              (conde
-              [(conso 1 t1 q) (conso 2 t2 t1)]
-              [(conso h t1 q) (conso 3 t2 t1)])))
+              [(== q [1 2 3])]
+              [(conso h t q) (== t nil)])))
+
+" - TASK: write a goal where the lvar q is a list with one element if
+    the first element is one and unbound number of elements
+    otherwise. For example:
+
+    (1), (42, 2, 2, 4, 1)
+"
+#_(run* [q]
+      (fresh [h t]
+             (conde
+              [(conso 1 t q) (== t nil)]
+              [(conso h t q) (!= h 1) (!= t nil)])))
 
 ;; goals can be set up in functions
 (defn containso
@@ -144,32 +152,32 @@ second element is :baz
           [(conso h t l) (containso x t)])))
 
 (run* [q]
-      (containso :bar [:foo :bar :baz]))
+      (containso 1 [1 2 3]))
 
 (run* [q]
-      (containso q [:foo :bar :baz]))
+      (containso q [1 2 3]))
 
 ;; if we use run* when there are an infinit number of results, we are in
 ;; trouble - we can use run instead
 (run 3 [q]
-     (containso :foo q))
+     (containso 42 q))
 
 "
 - TASK: write not-containso
 "
-;; TASK: write not-containso
 #_(defn not-containso
   [x l]
   (fresh [h t]
          (conde
           [(== l [])]
           [(conso h t l) (!= h x) (not-containso x t)])))
+
 #_(run* [q]
-      (not-containso :foo [:foo :bar :baz]))
+      (not-containso 1 [1 2 3]))
 #_(run* [q]
-      (not-containso :foobar [:foo :bar :baz]))
+      (not-containso 42 [1 2 3]))
 #_(run 3 [q]
-     (not-containso :foo q))
+     (not-containso 1 q))
 
 ;; the defne macro can be used for making sweet defn conde magic
 (defne containso
@@ -178,10 +186,10 @@ second element is :baz
   ([_ (h . t)] (containso x t)))
 
 (run* [q]
-      (containso q [:foo :bar :baz]))
+      (containso q [1 2 3]))
 
 (run 3 [q]
-     (containso :foo q))
+     (containso 1 q))
 
 ;; we can match on the first clause and skip "=="
 (defne containso
@@ -198,13 +206,13 @@ second element is :baz
   ([_ (h . t)] (!= h x) (not-containso x t)))
 
 #_(run* [q]
-      (not-containso :foo [:foo :bar :baz]))
+      (not-containso 1 [1 2 3]))
 
 #_(run* [q]
-      (not-containso :foobar [:foo :bar :baz]))
+      (not-containso 42 [1 2 3]))
 
 #_(run 3 [q]
-     (not-containso :foo q))
+     (not-containso 1 q))
 
 ;; There are a bunch of built in relations in core.logic. We are not going to go through them all here
 (comment
@@ -226,10 +234,10 @@ second element is :baz
   ([_ _ [h . t]] (!= x h) (latero x y t)))
 
 (run* [q]
-      (latero q :bar [:foo :bar :baz]))
+      (latero q 2 [1 2 3]))
 
 (run 3 [q]
-     (latero :bar :foo q))
+     (latero 2 1 q))
 
 ;; given: not-righto
 (defne not-righto
@@ -241,15 +249,16 @@ second element is :baz
   ([_ _ [h . t]] (!= y h) (!= x h) (not-righto x y t)))
 
 (run* [q]
-      (not-righto q :bar [:foo :bar :baz]))
+      (not-righto q 2 [1 2 3]))
 
 ;; TODO: Write some examples of true and false expressions
 "
 - TASK: given not-righto, write (not-adjacento x y l) \"x and y are not
-  adjacent in l\"
-"
-;; TASK: given not-righto, write (not-adjacento x y l) "x and y are not
-;; adjacent in l"
+        adjacent in l\"
+        e.g. (not-adjacento 1 3 [1 2 3]) is true
+             (not-adjacento 1 42 [1 2 3]) is true
+             (not-adjacento 1 2 [1 2 3]) is false
+             (not-adjacento 2 1 [1 2 3]) is false"
 (defn not-adjacento
   "x and y are not adjacent in l."
   [x y l]
@@ -258,10 +267,10 @@ second element is :baz
          (not-righto y x l)))
 
 (run* [q]
-      (not-adjacento q :baz [:foo :bar :baz]))
+      (not-adjacento q 3 [1 2 3]))
 
 (run 3 [q]
-     (not-adjacento :foo :baz q))
+     (not-adjacento 1 3 q))
 
 ;; EXAMPLE: Dinesman's multiple-dwelling problem
 "Dinesman's multiple-dwelling problem
