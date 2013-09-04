@@ -4,9 +4,10 @@
 ;; 30 end of conso
 ;; 35 start conde task
 ;; 55 write not-containso using defne
-;;
+
+
+
 ;; General:
-;; Use numbers instead of :foo, :bar, :baz
 ;; Mention paredit in the beginning
 ;; Mention that copy-pasting is encouraged
 
@@ -40,10 +41,13 @@
 
 ;; we can have more lvars
 (run* [q p]
-      (== q :foo)
-      (!= p :bar))
+      (== q 1)
+      (== p 2))
 
-;;;; SKIP?
+(run* [q p]
+      (== q 1)
+      (!= p 2))
+
 ;; we don't have to bind them
 (run* [q p])
 
@@ -73,9 +77,9 @@ not unified with p
       (conso q [2 3] [1 2 3]))
 
 "
-- TASK: where else can q be? what happens?
-- TASK: what happens if q is not used?
-- TASK: what if no list can satisfy it
+- TASK: where else can q be in conso? what happens?
+- TASK: what happens if q is not used in conso?
+- TASK: what if no list can satisfy it?
 - TASK: use two lvars in conso in multiple places
 "
 ;; TASK: where else can q be? what happens?
@@ -126,12 +130,19 @@ not unified with p
   one element.
 "
 #_(run* [q]
-      (fresh [h t]
+      (fresh [h]
              (conde
               [(== q [1 2 3])]
-              [(conso h t q) (== t nil)])))
+              [(conso h nil q)])))
 
-" - TASK: write a goal where the lvar q is a list with one element if
+#_(run* [q]
+      (fresh [p]
+             (conde
+              [(== q [1 2 3])]
+              [(== q [p])])))
+
+"
+  - TASK: write a goal where the lvar q is a list with one element if
     the first element is one and unbound number of elements
     otherwise. For example:
 
@@ -230,7 +241,7 @@ not unified with p
 (defne latero
   "x is later than y in l."
   [x y l]
-  ([_ _ [y . t]] (containso x t))
+  ([_ _ [y . t]] (membero x t))
   ([_ _ [h . t]] (!= x h) (latero x y t)))
 
 (run* [q]
@@ -239,7 +250,7 @@ not unified with p
 (run 3 [q]
      (latero 2 1 q))
 
-;; given: not-righto
+;; given: not-righto - not-censuctiveo
 (defne not-righto
   "x is not right of y in l."
   [x y l]
@@ -249,9 +260,8 @@ not unified with p
   ([_ _ [h . t]] (!= y h) (!= x h) (not-righto x y t)))
 
 (run* [q]
-      (not-righto q 2 [1 2 3]))
+      (not-righto q 3 [1 2 3 4 5]))
 
-;; TODO: Write some examples of true and false expressions
 "
 - TASK: given not-righto, write (not-adjacento x y l) \"x and y are not
         adjacent in l\"
@@ -259,12 +269,19 @@ not unified with p
              (not-adjacento 1 42 [1 2 3]) is true
              (not-adjacento 1 2 [1 2 3]) is false
              (not-adjacento 2 1 [1 2 3]) is false"
-(defn not-adjacento
+#_(defn not-adjacento
   "x and y are not adjacent in l."
   [x y l]
   (fresh []
          (not-righto x y l)
          (not-righto y x l)))
+
+(defne not-adjacento
+  "x and y are not adjacent in l."
+  [x y l]
+  ([_ _ _]
+     (not-righto x y l)
+     (not-righto y x l)))
 
 (run* [q]
       (not-adjacento q 3 [1 2 3]))
