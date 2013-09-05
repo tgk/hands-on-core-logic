@@ -12,6 +12,11 @@
 ;; Mention that copy-pasting is encouraged
 
 
+;; (conso h t q) (== t nil) is also (conso h [] q)
+;; unification: explain or just don't mention
+;; miniKanren and cKanren - a short story
+
+
 (ns user
   (:refer-clojure :exclude [==])
   (:use clojure.core.logic)
