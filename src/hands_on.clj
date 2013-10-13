@@ -145,25 +145,6 @@
               [(== q [1 2 3])]
               [(== q [p])])))
 
-
-;;;;;;; RE-VISIT: Is this a good task? Maybe we should skip it to get to
-;;;;;;; functions?
-"
-  - TASK: write a goal where the lvar q
-    is a list with one element if the
-    first element is one and unbound
-    number of elements otherwise.
-
-    For example:
-
-    (1), (42, 2, 2, 4, 1)
-"
-#_(run* [q]
-      (fresh [h t]
-             (conde
-              [(conso 1 t q) (== t nil)]
-              [(conso h t q) (!= h 1) (!= t nil)])))
-
 ;; goals can be set up in functions
 (defn containso
   [x l]
