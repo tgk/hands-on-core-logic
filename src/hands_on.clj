@@ -1,20 +1,15 @@
-;; NOTES FROM FIRST DRY-RUN
-;; time:
-;; 15 first task
-;; 30 end of conso
-;; 35 start conde task
-;; 55 write not-containso using defne
+;; Hands-on logic programming with core.logic
+;; Thomas G. Kristensen
 
+;; The Reasoned Schemer
+;; http://www.amazon.com/The-Reasoned-Schemer-Daniel-Friedman/dp/0262562146
 
+;; Contains the full code for miniKanren - two pages in the back!
 
-;; General:
-;; Mention paredit in the beginning
+;; Explain session format
 ;; Mention that copy-pasting is encouraged
 
-
-;; (conso h t q) (== t nil) is also (conso h [] q)
-;; unification: explain or just don't mention
-;; miniKanren and cKanren - a short story
+;; Hajime setup: window.teacher = true
 
 
 (ns user
@@ -57,8 +52,9 @@
 (run* [q p])
 
 "
-- TASK: write a logic program where p is unified with 1 and q is
-not unified with p
+- TASK: write a logic program where p
+  is unified with 1 and q is
+  not unified with p
 "
 #_(run* [q p]
       (== p 1)
@@ -82,10 +78,13 @@ not unified with p
       (conso q [2 3] [1 2 3]))
 
 "
-- TASK: where else can q be in conso? what happens?
-- TASK: what happens if q is not used in conso?
+- TASK: where else can q be in conso?
+        what happens?
+- TASK: what happens if q is not used
+        in conso?
 - TASK: what if no list can satisfy it?
-- TASK: use two lvars in conso in multiple places
+- TASK: use two lvars in conso in
+        multiple places
 "
 ;; TASK: where else can q be? what happens?
 #_(run* [q]
@@ -131,8 +130,8 @@ not unified with p
               [(conso h t q) (== 1 h)])))
 
 "
-- TASK: write a goal where the lvar q is either [1 2 3] or has only
-  one element.
+- TASK: write a goal where the lvar q is
+  either [1 2 3] or has only one element.
 "
 #_(run* [q]
       (fresh [h]
@@ -146,10 +145,16 @@ not unified with p
               [(== q [1 2 3])]
               [(== q [p])])))
 
+
+;;;;;;; RE-VISIT: Is this a good task? Maybe we should skip it to get to
+;;;;;;; functions?
 "
-  - TASK: write a goal where the lvar q is a list with one element if
-    the first element is one and unbound number of elements
-    otherwise. For example:
+  - TASK: write a goal where the lvar q
+    is a list with one element if the
+    first element is one and unbound
+    number of elements otherwise.
+
+    For example:
 
     (1), (42, 2, 2, 4, 1)
 "
@@ -175,11 +180,17 @@ not unified with p
 
 ;; if we use run* when there are an infinit number of results, we are in
 ;; trouble - we can use run instead
+#_(run* [q]
+     (containso 42 q))
+
 (run 3 [q]
      (containso 42 q))
 
 "
 - TASK: write not-containso
+  HINT: the empty list does not contain
+        the element; that's a good base
+        case
 "
 #_(defn not-containso
   [x l]
@@ -239,9 +250,14 @@ not unified with p
   (distincto l)) ;; all elements in l are distinct
 
 "
-- TASK: (latero x y l) - write defne that matches \"x is later than y in l\"
+- TASK: (latero x y l) - write defne
+        that matches
+
+          \"x is later than y in l\"
+
         e.g. (latero 1 2 [3 2 1]) is true,
-             (latero 1 2 [1 2 3]) is false
+             (latero 1 2 [1 2 3]) is false,
+             (latero 1 2 [3 2]) is false
 "
 (defne latero
   "x is later than y in l."
@@ -255,9 +271,9 @@ not unified with p
 (run 3 [q]
      (latero 2 1 q))
 
-;; given: not-righto - not-censuctiveo
+;; given: not-righto
 (defne not-righto
-  "x is not right of y in l."
+  "x is not immediately right of y in l."
   [x y l]
   ([_ _ []])
   ([_ _ [x . t]] (membero y t))
@@ -268,10 +284,12 @@ not unified with p
       (not-righto q 3 [1 2 3 4 5]))
 
 "
-- TASK: given not-righto, write (not-adjacento x y l) \"x and y are not
-        adjacent in l\"
+- TASK: given not-righto, write (not-adjacento x y l)
+
+          \"x and y are not adjacent in l\"
+
         e.g. (not-adjacento 1 3 [1 2 3]) is true
-             (not-adjacento 1 42 [1 2 3]) is true
+             (not-adjacento 1 42 [1 2 3]) is false
              (not-adjacento 1 2 [1 2 3]) is false
              (not-adjacento 2 1 [1 2 3]) is false"
 #_(defn not-adjacento
@@ -318,157 +336,3 @@ Cooper's. Where does everyone live?"
              (not-adjacento :fletcher :cooper floors)
              (permuteo [:baker :cooper :fletcher :miller :smith]
                        floors)))
-
-
-;;;;; I don't think we'll make it further than here - I migth release
-;;;;; the packeto as lecture notes instead.
-
-
-
-;; Finite domain
-
-;; Not everything is lists! Let's do some maths!
-(run* [q]
-      (fd/+ 1 1 2))
-
-(run* [q]
-      (fd/+ 1 2 2))
-
-(run* [q]
-      (fd/+ 1 1 q))
-
-(run* [q]
-      (fd/+ 1 q 2))
-
-;; TASK: Write (counto l n), n is the length of l
-#_(defne counto
-  [l n]
-  ([[] 0])
-  ([(h . t) _]
-     (fresh [m]
-            (fd/+ m 1 n)
-            (counto t m))))
-
-#_(run* [q]
-     (counto [:foo :bar :baz] q))
-
-;; If we try to generate lists of a length, we will fail. The fact that
-;; m is not bound to an interval means that the logic engine is unable
-;; to figure out what to do
-
-;; FIX: Bind m to an interval
-(defne counto
-  [l n]
-  ([[] 0])
-  ([(h . t) _]
-     (fresh [m]
-            (fd/in m (fd/interval 0 Integer/MAX_VALUE))
-            (fd/+ m 1 n)
-            (counto t m))))
-
-;; And now it works
-(run* [q]
-      (counto q 3))
-
-;; An interesting example: binaryo
-(defne binaryo [p n]
-  ([() 0])
-  ([[h . t] _]
-     (fresh [m m-times-two]
-            (fd/in m (fd/interval 0 Integer/MAX_VALUE))
-            (fd/in h (fd/interval 0 1))
-            (binaryo t m)
-            (fd/* m 2 m-times-two)
-            (fd/+ m-times-two h n))))
-
-(run 3 [p]
-     (binaryo p 1))
-(run 3 [p]
-     (binaryo p 2))
-(run 3 [p]
-     (binaryo p 3))
-
-;; Erlang packet destructing is so simple and nice, we should be jealoux!
-"<<Size:4/binary,C:Size,_Rest>> = Data."
-
-;; Let's do something similar for Clojure:
-(defne packeto [p pattern]
-  ([() ()])
-  ([_ [:chunk n c . t]]
-     (fresh [pt]
-            (appendo c pt p)
-            (counto c n)
-            (packeto pt t)))
-  ([_ [:binary n v . t]]
-     (fresh [c np]
-            (appendo [:chunk n c] t np)
-            (packeto p np)
-            (binaryo c v))))
-
-;; we can now parse packets, just like Erlang
-(run 1 [q]
-     (fresh [b c
-             rest-size rest-chunk]
-            (packeto [1 0 0 1 , 0 1 0 0 1 0 1 1 1 ,,, 1 1 0]
-                     [:binary 4 b
-                      :chunk b c
-                      :chunk rest-size rest-chunk])
-            (== q [b c])))
-
-;; we can do better - we can generate packets as well!
-(run 1 [q]
-     (fresh [b]
-            (packeto q
-                     [:binary 4 b
-                      :chunk b [0 1 0 1 0 1 0 1 1]])))
-
-
-;;; HOMEWORK
-
-;; lasto, reverso, palindromo
-
-;; Send more money puzzle:
-;;
-;;     S E N D
-;; +   M O R E
-;; = M O N E Y
-;;
-;; which values from 0 to 9 unifies the equation?
-
-
-;; Eight queens puzzle
-;; Place eight queens on a chess board such that no queen can take any others
-
-
-;; Balanced tree goal
-;; construct and check trees are balanced
-
-
-;;; WHERE TO GO NOW?
-
-;; - compose with core.logic
-;;   http://tgk.github.io/2012/12/the-composing-schemer.html
-
-;; - zebra puzzle
-;;   https://github.com/swannodette/logic-tutorial
-
-;; - connected components algorithm
-;;   http://tgk.github.io/2012/08/finding-cliques-in-graphs-using-core-logic.html
-
-;; - schema planning by Edmund Jackson
-;;   http://vimeo.com/45128721
-
-;; - ClojureConj miniKanren talk
-;;   http://www.youtube.com/watch?v=5Q9x16uIsKA
-
-;; - Read "The Reasoned Schemer"
-;;   http://mitpress.mit.edu/books/reasoned-schemer
-
-;; - David Nolen's sudoku solver
-;;   https://gist.github.com/swannodette/3217582
-
-;; - Ancestral relationships
-;;   https://github.com/swannodette/logic-tutorial
-
-;; - Quine generation in miniKanren
-;;   http://www.cs.indiana.edu/~eholk/papers/sfp2012.pdf
