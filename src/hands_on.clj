@@ -21,6 +21,10 @@
 (run* [q]
       (== q true))
 
+;; since we are just expressing relations, order is not important
+(run* [q]
+      (== true q))
+
 ;; a logical value can take any Clojure value
 (run* [q]
       (== q 1))
@@ -305,15 +309,19 @@ to Fletcher's. Fletcher does not live on a floor adjacent to
 Cooper's. Where does everyone live?"
 
 ;; We are using latero, not-adjacento and permuteo
-(run* [floors]
-      (fresh [first second third fourth fifth]
-             (== floors [first second third fourth fifth])
-             (!= fifth :baker)
-             (!= first :cooper)
-             (!= first :fletcher)
-             (!= fifth :fletcher)
-             (latero :miller :cooper floors)
-             (not-adjacento :smith :fletcher floors)
-             (not-adjacento :fletcher :cooper floors)
-             (permuteo [:baker :cooper :fletcher :miller :smith]
-                       floors)))
+(defn dinesman
+  []
+  (run* [floors]
+        (fresh [first second third fourth fifth]
+               (== floors [first second third fourth fifth])
+               (!= fifth :baker)
+               (!= first :cooper)
+               (!= first :fletcher)
+               (!= fifth :fletcher)
+               (latero :miller :cooper floors)
+               (not-adjacento :smith :fletcher floors)
+               (not-adjacento :fletcher :cooper floors)
+               (permuteo [:baker :cooper :fletcher :miller :smith]
+                         floors))))
+
+(dinesman)
